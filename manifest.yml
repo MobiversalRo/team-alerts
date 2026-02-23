@@ -1,0 +1,41 @@
+app:
+  id: ari:cloud:ecosystem::app/team-alerts
+  runtime:
+    name: nodejs20.x
+
+modules:
+  jira:globalPage:
+    - key: team-alerts-page
+      resource: main
+      title: Team Alerts
+      icon: resource:app_icon;logo.svg
+      resolver:
+        function: resolver
+
+  function:
+    - key: resolver
+      handler: index.handler
+
+resources:
+  - key: main
+    path: static/team-alerts/build
+
+  - key: app_icon
+    path: static/team-alerts/build/images
+
+permissions:
+  scopes:
+    - read:jira-user
+    - read:jira-work
+    - write:jira-work
+    - send:notification:jira
+    - storage:app
+  content:
+    styles:
+      - 'unsafe-inline'
+    scripts:
+      - 'unsafe-inline'
+  external:
+    fetch:
+      backend:
+        - address: https://www.google-analytics.com

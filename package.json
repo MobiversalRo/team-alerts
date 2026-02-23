@@ -1,0 +1,19 @@
+{
+  "name": "team-alerts",
+  "version": "1.0.0",
+  "description": "Send notifications to project team members via email and in-app alerts",
+  "main": "src/index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  },
+  "dependencies": {
+    "@forge/resolver": "1.6.11",
+    "@forge/api": "3.0.0"
+  }
+}

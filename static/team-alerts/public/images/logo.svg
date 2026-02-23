@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="48" height="48">
+  <defs>
+    <linearGradient id="alertGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0052CC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2684FF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Bell body -->
+  <path d="M50 20 C40 20, 35 25, 35 35 L35 55 C35 60, 30 62, 28 65 L72 65 C70 62, 65 60, 65 55 L65 35 C65 25, 60 20, 50 20 Z" 
+        fill="url(#alertGradient)" stroke="#0052CC" stroke-width="2"/>
+  
+  <!-- Bell clapper -->
+  <circle cx="50" cy="68" r="4" fill="#0052CC"/>
+  
+  <!-- Bell top -->
+  <rect x="47" y="15" width="6" height="5" rx="2" fill="#0052CC"/>
+  
+  <!-- Notification badge -->
+  <circle cx="68" cy="28" r="10" fill="#FF5630"/>
+  <text x="68" y="32" font-family="Arial, sans-serif" font-size="12" font-weight="bold" 
+        fill="white" text-anchor="middle">3</text>
+  
+  <!-- Sound waves -->
+  <path d="M75 45 Q78 50, 75 55" stroke="#2684FF" stroke-width="2" fill="none" opacity="0.7"/>
+  <path d="M80 40 Q85 50, 80 60" stroke="#2684FF" stroke-width="2" fill="none" opacity="0.5"/>
+  
+  <path d="M25 45 Q22 50, 25 55" stroke="#2684FF" stroke-width="2" fill="none" opacity="0.7"/>
+  <path d="M20 40 Q15 50, 20 60" stroke="#2684FF" stroke-width="2" fill="none" opacity="0.5"/>
+</svg>

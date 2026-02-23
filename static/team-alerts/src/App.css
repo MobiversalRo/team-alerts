@@ -1,0 +1,286 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f4f5f7;
+}
+
+.app-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #0052CC;
+}
+
+.header h1 {
+  margin: 0 0 8px 0;
+  color: #172B4D;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 0;
+  color: #5E6C84;
+  font-size: 14px;
+}
+
+.alert {
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.alert-success {
+  background-color: #E3FCEF;
+  border: 1px solid #00875A;
+  color: #006644;
+}
+
+.alert-error {
+  background-color: #FFEBE6;
+  border: 1px solid #DE350B;
+  color: #BF2600;
+}
+
+.alert strong {
+  font-weight: 600;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: #172B4D;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.form-control {
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 2px solid #DFE1E6;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  font-family: inherit;
+}
+
+.form-control:hover {
+  border-color: #B3BAC5;
+}
+
+.form-control:focus {
+  border-color: #0052CC;
+}
+
+.form-control:disabled {
+  background-color: #F4F5F7;
+  color: #A5ADBA;
+  cursor: not-allowed;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #0052CC;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  text-decoration: underline;
+}
+
+.btn-link:hover {
+  color: #0065FF;
+}
+
+.user-list {
+  max-height: 350px;
+  overflow-y: auto;
+  border: 2px solid #DFE1E6;
+  border-radius: 4px;
+  padding: 8px;
+  background-color: #FAFBFC;
+}
+
+.user-item {
+  padding: 8px;
+  border-bottom: 1px solid #DFE1E6;
+}
+
+.user-item:last-child {
+  border-bottom: none;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: #172B4D;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  cursor: pointer;
+  accent-color: #0052CC;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
+  font-weight: 500;
+  color: #172B4D;
+}
+
+.user-email {
+  color: #5E6C84;
+  font-size: 12px;
+}
+
+.selection-summary {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #5E6C84;
+  font-weight: 500;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background-color: #FAFBFC;
+  border: 2px solid #DFE1E6;
+  border-radius: 4px;
+}
+
+.form-actions {
+  margin-top: 8px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  outline: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background-color: #0052CC;
+  color: #FFFFFF;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0065FF;
+}
+
+.btn-primary:disabled {
+  background-color: #B3D4FF;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.loading-message {
+  padding: 16px;
+  text-align: center;
+  color: #5E6C84;
+  font-style: italic;
+  background-color: #F4F5F7;
+  border-radius: 4px;
+}
+
+/* Scrollbar styling */
+.user-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.user-list::-webkit-scrollbar-track {
+  background: #F4F5F7;
+  border-radius: 4px;
+}
+
+.user-list::-webkit-scrollbar-thumb {
+  background: #B3BAC5;
+  border-radius: 4px;
+}
+
+.user-list::-webkit-scrollbar-thumb:hover {
+  background: #8993A4;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 16px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+  }
+
+  .user-list {
+    max-height: 250px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
