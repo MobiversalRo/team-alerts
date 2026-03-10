@@ -1,5 +1,10 @@
 # Team Alerts - Jira Forge App
 
+**Description (for Marketplace / clients):**  
+Team Alerts lets project admins send custom notifications to their team directly from Jira. Choose a project, select one or more users (or everyone), write a subject and message, then send by email, in-app, or both. No external servers—everything runs in Jira via Atlassian Forge.
+
+---
+
 A modern, interactive Jira Forge application that allows project administrators to send notifications to selected users or all users within a project.
 
 ## Features
