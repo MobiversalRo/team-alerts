@@ -6,7 +6,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "echo \"No tests specified\""
+    "test": "echo \"No tests specified\"",
+    "build": "npm run build --prefix static/team-alerts",
+    "deploy": "npm run build && npx @forge/cli deploy",
+    "deploy:dev": "npm run build && npx @forge/cli deploy --environment development"
   },
   "devDependencies": {
     "eslint": "^8.56.0",

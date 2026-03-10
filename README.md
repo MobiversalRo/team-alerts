@@ -26,14 +26,13 @@ A modern, interactive Jira Forge application that allows project administrators 
 - Pagination support for large user lists
 - Filters only active human users (excludes bots/apps)
 - Robust error handling with user-friendly messages
-- Analytics tracking for usage monitoring
+- Usage metrics available via Atlassian
 - Optimized API calls with proper scope management
 
 ## App Structure
 
 ### Backend (Resolver)
 **File**: `src/index.js`
-- `onAppOpen`: Analytics ping when app launches
 - `getAllProjects`: Fetches all accessible Jira projects
 - `getUsersForProject`: Retrieves all active users for a specific project with pagination
 - `sendNotifications`: Sends email and/or in-app notifications to selected users
@@ -56,9 +55,6 @@ The app requires the following Jira scopes:
 - `write:jira-work` - To create notifications
 - `send:notification:jira` - To send email notifications
 - `storage:app` - For app data storage (future use)
-
-External fetch permissions:
-- `https://www.google-analytics.com` - For analytics tracking
 
 ## How It Works
 
@@ -99,24 +95,52 @@ Uses `/rest/api/3/issue/{issueKey}/notify` endpoint:
 
 ### Deployment Steps
 
-**Option 1: Automatic Deployment** (Recommended)
+**Option 1: Deploy with Forge CLI (development)** — recommended for development
+
+1. **Authenticate** (one-time):
+   ```bash
+   npx @forge/cli login
+   ```
+   Open the link in your browser and authorize the CLI.
+
+2. **Register the app** (one-time; requires an interactive terminal):
+   ```bash
+   cd /path/to/team-alerts
+   npx @forge/cli register team-alerts
+   ```
+   At the prompt, select your **Developer Space**. The manifest will be updated with the App ID (UUID).
+
+3. **Build and deploy to development**:
+   ```bash
+   npm run deploy:dev
+   ```
+   Or manually:
+   ```bash
+   npm run build
+   npx @forge/cli deploy --environment development
+   ```
+
+4. **Install on your Jira site**: After deploy, run (if you want to install on a development Jira site):
+   ```bash
+   npx @forge/cli install
+   ```
+   and follow the steps (choose the Jira site).
+
+**Option 2: Automatic Deployment** (IDE panel)
 1. In the right panel, enter your Jira credentials (email, domain, API key)
 2. Click "Test Connection" to verify credentials
 3. Click "Deploy the app" to deploy to your Jira instance
 
-**Option 2: Manual Deployment**
+**Option 3: Manual (forge-installer)**
 
-**For Windows:**
-1. Download and extract the app code
-2. Navigate to the app directory
-3. Run `forge-installer.exe`
-4. Enter credentials when prompted
+**For Windows:** Run `forge-installer.exe` in the app directory and enter credentials when prompted.
 
 **For macOS/Linux:**
-1. Download and extract the app code
-2. Navigate to the app directory: `cd /path/to/team-alerts`
-3. Run: `./forge-installer`
-4. Enter credentials when prompted
+```bash
+cd /path/to/team-alerts
+./forge-installer
+```
+Enter credentials when prompted.
 
 ### Accessing the App
 After deployment:
@@ -141,7 +165,7 @@ This app is built following Atlassian's submission guidelines:
 - ✅ Includes accessibility features
 - ✅ Uses minimal required permissions
 - ✅ No external dependencies beyond approved list
-- ✅ Analytics implemented for usage tracking
+- ✅ Usage metrics via Atlassian
 - ✅ Responsive design for all devices
 
 ## Support
@@ -158,7 +182,6 @@ For issues or questions:
 - Project selection and user management
 - Email and in-app notification support
 - Modern, responsive UI
-- Analytics integration
 - Full error handling
 
 ---

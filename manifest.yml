@@ -1,7 +1,9 @@
 app:
-  id: ari:cloud:ecosystem::app/team-alerts
+  id: ari:cloud:ecosystem::app/3883bfae-cc64-4179-a194-54985ffed17b
   runtime:
     name: nodejs20.x
+  licensing:
+    enabled: true
 
 modules:
   jira:globalPage:
@@ -28,6 +30,7 @@ permissions:
     - read:jira-user
     - read:jira-work
     - write:jira-work
+    - write:comment:jira
     - send:notification:jira
     - storage:app
   content:
@@ -35,7 +38,3 @@ permissions:
       - 'unsafe-inline'
     scripts:
       - 'unsafe-inline'
-  external:
-    fetch:
-      backend:
-        - address: https://www.google-analytics.com

@@ -7,19 +7,21 @@ const App = () => {
   const [selectedProject, setSelectedProject] = useState('');
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [issueTypes, setIssueTypes] = useState([]);
+  const [selectedIssueType, setSelectedIssueType] = useState('');
+  const [issues, setIssues] = useState([]);
+  const [selectedIssueKey, setSelectedIssueKey] = useState('');
+  const [loadingIssues, setLoadingIssues] = useState(false);
   const [notificationTypes, setNotificationTypes] = useState([]);
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [attachments, setAttachments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Send analytics ping on app open
-    invoke('onAppOpen').catch(err => console.error('Analytics failed:', err));
-
-    // Load projects
     loadProjects();
   }, []);
 
@@ -41,11 +43,43 @@ const App = () => {
     }
   };
 
+  const loadIssueTypesAndIssues = async (projectKey, issueType = '') => {
+    if (!projectKey) return;
+    setLoadingIssues(true);
+    try {
+      const [typesRes, issuesRes] = await Promise.all([
+        invoke('getProjectIssueTypes', { projectKey }),
+        invoke('getIssuesForProject', { projectKey, issueType: issueType || undefined })
+      ]);
+      if (Array.isArray(typesRes)) {
+        setIssueTypes(typesRes);
+      } else {
+        setIssueTypes([]);
+      }
+      if (Array.isArray(issuesRes)) {
+        setIssues(issuesRes);
+      } else if (issuesRes && issuesRes.error) {
+        setIssues([]);
+      } else {
+        setIssues([]);
+      }
+    } catch (err) {
+      setIssueTypes([]);
+      setIssues([]);
+    } finally {
+      setLoadingIssues(false);
+    }
+  };
+
   const handleProjectChange = async (e) => {
     const projectKey = e.target.value;
     setSelectedProject(projectKey);
     setSelectedUsers([]);
     setUsers([]);
+    setSelectedIssueType('');
+    setSelectedIssueKey('');
+    setIssues([]);
+    setIssueTypes([]);
     setResult(null);
     setError(null);
 
@@ -53,8 +87,11 @@ const App = () => {
 
     try {
       setLoadingUsers(true);
-      const userList = await invoke('getUsersForProject', { projectKey });
-      
+      const [userList] = await Promise.all([
+        invoke('getUsersForProject', { projectKey }),
+        loadIssueTypesAndIssues(projectKey)
+      ]);
+
       if (userList && userList.error) {
         setError(userList.error);
       } else if (Array.isArray(userList)) {
@@ -69,6 +106,29 @@ const App = () => {
       setError('Error loading users: ' + err.message);
     } finally {
       setLoadingUsers(false);
+    }
+  };
+
+  const handleIssueTypeChange = async (e) => {
+    const issueType = e.target.value;
+    setSelectedIssueType(issueType);
+    setSelectedIssueKey('');
+    if (!selectedProject) return;
+    setLoadingIssues(true);
+    try {
+      const issuesRes = await invoke('getIssuesForProject', {
+        projectKey: selectedProject,
+        issueType: issueType || undefined
+      });
+      if (Array.isArray(issuesRes)) {
+        setIssues(issuesRes);
+      } else {
+        setIssues([]);
+      }
+    } catch (err) {
+      setIssues([]);
+    } finally {
+      setLoadingIssues(false);
     }
   };
 
@@ -89,6 +149,37 @@ const App = () => {
       setSelectedUsers(users.map(u => u.accountId));
     }
   };
+
+  const MAX_ATTACHMENTS = 4;
+  const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+
+  const handleAttachmentChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    const current = attachments.length;
+    const toAdd = files.slice(0, MAX_ATTACHMENTS - current).filter((file) => {
+      if (file.size > MAX_FILE_SIZE_BYTES) return false;
+      return true;
+    });
+    setAttachments((prev) => [...prev, ...toAdd.map((file) => ({ file, name: file.name, size: file.size }))]);
+    e.target.value = '';
+  };
+
+  const removeAttachment = (index) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const fileToBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        const base64 = dataUrl.split(',')[1];
+        resolve({ filename: file.name, base64: base64 || '' });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 
   const handleNotificationTypeToggle = (type) => {
     setNotificationTypes(prev => {
@@ -121,28 +212,47 @@ const App = () => {
       return;
     }
 
+    const hasOversized = attachments.some((a) => a.size > MAX_FILE_SIZE_BYTES);
+    if (hasOversized) {
+      setError('Each attachment must be 5MB or less.');
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
       setResult(null);
+
+      const userDetails = selectedUsers.map((id) => {
+        const u = users.find((x) => x.accountId === id);
+        return { accountId: id, displayName: (u && u.displayName) || 'User' };
+      });
+
+      const attachmentPayload =
+        attachments.length > 0
+          ? await Promise.all(attachments.map((a) => fileToBase64(a.file)))
+          : undefined;
 
       const response = await invoke('sendNotifications', {
         projectKey: selectedProject,
         userAccountIds: selectedUsers,
         notificationTypes,
         subject: subject.trim(),
-        message: message.trim()
+        message: message.trim(),
+        userDetails,
+        issueKey: selectedIssueKey || undefined,
+        ...(attachmentPayload && attachmentPayload.length > 0 ? { attachments: attachmentPayload } : {})
       });
 
       if (response.error) {
         setError(response.error);
       } else {
         setResult(response);
-        // Clear form after successful send
         setSubject('');
         setMessage('');
         setSelectedUsers([]);
         setNotificationTypes([]);
+        setAttachments([]);
       }
     } catch (err) {
       setError('Error sending notifications: ' + err.message);
@@ -154,20 +264,16 @@ const App = () => {
   return (
     <div className="app-container">
       <div className="header">
-        <h1>Team Alerts</h1>
+        <div className="header-title-row">
+          <img src={`${process.env.PUBLIC_URL || ''}/images/logo.svg`} alt="" className="header-icon" aria-hidden />
+          <h1>Team Alerts</h1>
+        </div>
         <p className="subtitle">Send notifications to your project team members</p>
       </div>
 
-      {error && (
+      {!(selectedProject && users.length > 0) && error && (
         <div className="alert alert-error">
           <strong>Error:</strong> {error}
-        </div>
-      )}
-
-      {result && (
-        <div className="alert alert-success">
-          <strong>Success!</strong> Sent {result.totalSent} notification(s) successfully.
-          {result.totalFailed > 0 && ` ${result.totalFailed} failed.`}
         </div>
       )}
 
@@ -191,6 +297,49 @@ const App = () => {
             ))}
           </select>
         </div>
+
+        {selectedProject && (
+          <>
+            <div className="form-group">
+              <label htmlFor="issue-type-select">
+                <strong>Issue type (filter)</strong>
+              </label>
+              <select
+                id="issue-type-select"
+                className="form-control"
+                value={selectedIssueType}
+                onChange={handleIssueTypeChange}
+                disabled={loadingIssues}
+              >
+                <option value="">Any</option>
+                {issueTypes.map((t) => (
+                  <option key={t.id} value={t.name}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="issue-select">
+                <strong>Link notification to issue</strong>
+              </label>
+              <select
+                id="issue-select"
+                className="form-control"
+                value={selectedIssueKey}
+                onChange={(e) => setSelectedIssueKey(e.target.value)}
+                disabled={loadingIssues}
+              >
+                <option value="">Use most recent issue</option>
+                {issues.map((issue) => (
+                  <option key={issue.key} value={issue.key}>
+                    {issue.key} — {issue.summary.length > 50 ? issue.summary.slice(0, 50) + '…' : issue.summary}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        )}
 
         {loadingUsers && (
           <div className="loading-message">
@@ -293,6 +442,42 @@ const App = () => {
               />
             </div>
 
+            <div className="form-group">
+              <label htmlFor="attachments">
+                <strong>Attachments (optional)</strong>
+              </label>
+              <input
+                id="attachments"
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif"
+                className="form-control"
+                onChange={handleAttachmentChange}
+                disabled={attachments.length >= MAX_ATTACHMENTS}
+              />
+              <span className="form-hint">Max {MAX_ATTACHMENTS} files, 5MB each. Added to the issue.</span>
+              {attachments.length > 0 && (
+                <ul className="attachment-list">
+                  {attachments.map((a, i) => (
+                    <li key={i} className="attachment-item">
+                      <span className="attachment-name">{a.name}</span>
+                      <span className="attachment-size">
+                        ({(a.size / 1024).toFixed(1)} KB)
+                      </span>
+                      <button
+                        type="button"
+                        className="btn-link attachment-remove"
+                        onClick={() => removeAttachment(i)}
+                        aria-label={`Remove ${a.name}`}
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
             <div className="form-actions">
               <button
                 className="btn btn-primary"
@@ -302,6 +487,25 @@ const App = () => {
                 {loading ? 'Sending...' : 'Send Notification'}
               </button>
             </div>
+
+            {(result || error) && (
+              <>
+                {result && (
+                  <div className="alert alert-success">
+                    <strong>Success!</strong> Sent {result.totalSent} notification(s) successfully.
+                    {result.totalFailed > 0 && ` ${result.totalFailed} failed.`}
+                    {result.attachmentsUploaded && result.attachmentsUploaded.length > 0 && (
+                      <span> {result.attachmentsUploaded.length} attachment(s) added to the issue.</span>
+                    )}
+                  </div>
+                )}
+                {error && (
+                  <div className="alert alert-error">
+                    <strong>Error:</strong> {error}
+                  </div>
+                )}
+              </>
+            )}
           </>
         )}
       </div>
